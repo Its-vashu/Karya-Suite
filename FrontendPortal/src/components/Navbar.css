@@ -1,0 +1,87 @@
+/* .navbar {
+  background-color:rgba(255, 255, 255, 0.93) ;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  color:black;
+  width: auto;
+  height: auto;
+}
+
+.logo {
+  height: 45px;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap:95px;
+  margin:05px
+}
+
+.nav-links a {
+  color: black;
+  text-decoration: none;
+  font-weight: 500;
+}
+/* Prevent flickering of dropdown */
+/* .stay-open {
+  pointer-events: auto;
+} */
+
+/* Add this fix only for dashboard dropdown */
+
+/* .dropdown {
+  position: relative;
+  display: inline-block;
+  margin-right: 83px;
+}
+
+.dropdown:hover .dropdown-content,
+.dropdown-content:hover {
+  display: block;
+} */
+/* .dropdown-content {
+  display: block; 
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background-color:white;
+  color:black;
+  padding: 10px;
+  border-radius: 6px;
+  z-index: 1000;
+  min-width: 140px;
+}
+.dropdown-content ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+} */
+
+/* 
+.dropdown-content ul li {
+  padding: 8px 10px;
+  color: rgb(116, 28, 28);
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+.dropdown-content ul li:hover {
+  background-color: #f0f0f0;
+}
+
+.dropdown:hover .dropdown-title {
+  background-color: #0da9dd;
+  border-radius: 6px;
+}
+.dropdown-content {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background-color:white;
+  padding: 10px;
+  border-radius: 6px;
+  z-index: 1000;
+  min-width: 140px;
+}  */
