@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { FaEye, FaEyeSlash, FaUserCircle, FaLock, FaUserShield } from 'react-icons/fa';
-import { KeyRound, User, ShieldCheck, Copy } from 'lucide-react';
+import { User, ShieldCheck } from 'lucide-react';
 
 const API_BASE = process.env.REACT_APP_API_BASE_URL;
 
@@ -149,112 +149,54 @@ const Login = () => {
       {/* Animated Background */}
       <div id="particles-js" style={styles.particlesBackground} />
 
-      {/* Login + Demo Side-by-Side (stacked on mobile) */}
-      <div className="relative z-[2] w-full max-w-[920px] flex flex-col md:flex-row items-stretch justify-center gap-5 px-2">
-        <div style={{ ...styles.container, maxWidth: '440px', width: '100%' }}>
-          <LoginForm
-            formData={formData}
-            showPassword={showPassword}
-            onInputChange={handleInputChange}
-            onSubmit={handleSubmit}
-            onTogglePassword={() => setShowPassword(prev => !prev)}
-            onNavigate={navigate}
-          />
-        </div>
-        <DemoAccessCard onQuickLogin={handleQuickLogin} />
-      </div>
-    </div>
-  );
-};
-
-const DemoAccessCard = ({ onQuickLogin }) => {
-  const copy = (text) => {
-    navigator.clipboard?.writeText(text);
-    toast.info(`Copied: ${text}`);
-  };
-
-  return (
-    <div className="relative z-[3] w-full md:w-[360px] md:flex-shrink-0 bg-white/95 backdrop-blur rounded-2xl shadow-xl border border-slate-200 overflow-hidden flex flex-col">
-      <div className="px-5 py-4 border-b border-slate-100">
-        <div className="flex items-center gap-2">
-          <ShieldCheck size={18} className="text-blue-700" />
-          <h3 className="text-sm font-semibold text-slate-900">Demo Access</h3>
-        </div>
-        <p className="text-[11px] text-slate-500 mt-1">
-          One-click sign-in for reviewers — no signup needed.
-        </p>
-      </div>
-
-      <div className="p-5 flex-1 flex flex-col gap-4">
-        <button
-          type="button"
-          onClick={() => onQuickLogin('hr')}
-          className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-[#0a2c5d] to-[#2b6cb0] hover:opacity-95 transition shadow-sm"
-        >
-          <ShieldCheck size={16} />
-          Login as HR / Admin
-        </button>
-        <button
-          type="button"
-          onClick={() => onQuickLogin('employee')}
-          className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-emerald-600 to-emerald-500 hover:opacity-95 transition shadow-sm"
-        >
-          <User size={16} />
-          Login as Employee
-        </button>
-
-        <div className="flex items-center gap-2 pt-1">
-          <div className="flex-1 h-px bg-slate-200" />
-          <span className="text-[10px] uppercase tracking-wider text-slate-400">or use credentials</span>
-          <div className="flex-1 h-px bg-slate-200" />
-        </div>
-
-        <DemoRow
-          icon={<ShieldCheck size={14} className="text-blue-700" />}
-          title="HR / Admin"
-          email={DEMO_ACCOUNTS.hr.email}
-          password={DEMO_ACCOUNTS.hr.password}
-          onCopy={copy}
-        />
-        <DemoRow
-          icon={<User size={14} className="text-emerald-700" />}
-          title="Employee"
-          email={DEMO_ACCOUNTS.employee.email}
-          password={DEMO_ACCOUNTS.employee.password}
-          onCopy={copy}
+      {/* Login Container — original single-column layout */}
+      <div style={styles.container}>
+        <LoginForm
+          formData={formData}
+          showPassword={showPassword}
+          onInputChange={handleInputChange}
+          onSubmit={handleSubmit}
+          onTogglePassword={() => setShowPassword(prev => !prev)}
+          onNavigate={navigate}
+          onQuickLogin={handleQuickLogin}
         />
       </div>
     </div>
   );
 };
 
-const DemoRow = ({ icon, title, email, password, onCopy }) => (
-  <div className="space-y-1.5">
-    <div className="flex items-center gap-1.5">
-      {icon}
-      <span className="text-xs font-semibold text-slate-700">{title}</span>
+const GuestLoginButtons = ({ onQuickLogin }) => (
+  <div className="w-full mt-4">
+    <div className="flex items-center gap-2 mb-3">
+      <div className="flex-1 h-px bg-slate-200" />
+      <span className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">
+        Demo Access
+      </span>
+      <div className="flex-1 h-px bg-slate-200" />
     </div>
-    <CredField value={email} onCopy={onCopy} icon={<KeyRound size={12} />} />
-    <CredField value={password} onCopy={onCopy} mono />
-  </div>
-);
-
-const CredField = ({ value, onCopy, mono }) => (
-  <div className="flex items-center justify-between gap-2 bg-slate-50 border border-slate-200 rounded-md px-2.5 py-1.5 group">
-    <code className={`text-xs text-slate-700 truncate ${mono ? 'font-mono' : ''}`}>{value}</code>
-    <button
-      type="button"
-      onClick={() => onCopy(value)}
-      className="shrink-0 p-1 rounded text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition"
-      title="Copy"
-    >
-      <Copy size={12} />
-    </button>
+    <div className="grid grid-cols-2 gap-2">
+      <button
+        type="button"
+        onClick={() => onQuickLogin('hr')}
+        className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold text-[#0a2c5d] bg-blue-50 hover:bg-blue-100 border border-blue-200 transition"
+      >
+        <ShieldCheck size={14} />
+        Login as HR
+      </button>
+      <button
+        type="button"
+        onClick={() => onQuickLogin('employee')}
+        className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition"
+      >
+        <User size={14} />
+        Login as Employee
+      </button>
+    </div>
   </div>
 );
 
 // Sub-components for better organization
-const LoginForm = ({ formData, showPassword, onInputChange, onSubmit, onTogglePassword, onNavigate }) => (
+const LoginForm = ({ formData, showPassword, onInputChange, onSubmit, onTogglePassword, onNavigate, onQuickLogin }) => (
   <form onSubmit={onSubmit} style={styles.formBox}>
     <WelcomeHeader />
     <RoleSelector selectedRole={formData.role} onRoleChange={(role) => onInputChange('role', role)} />
@@ -274,6 +216,7 @@ const LoginForm = ({ formData, showPassword, onInputChange, onSubmit, onTogglePa
       required
     />
     <SubmitButton />
+    <GuestLoginButtons onQuickLogin={onQuickLogin} />
     <ForgotPasswordLink onNavigate={onNavigate} />
   </form>
 );
