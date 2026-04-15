@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { FaEye, FaEyeSlash, FaUserCircle, FaLock, FaUserShield } from 'react-icons/fa';
+import { KeyRound, User, ShieldCheck, Copy } from 'lucide-react';
 
 const API_BASE = process.env.REACT_APP_API_BASE_URL;
 
@@ -13,6 +14,22 @@ const LOGIN_ENDPOINTS = {
 };
 
 const ROLES = ['employee', 'hr'];
+
+// Demo accounts — these must exist in the backend (see seed script)
+const DEMO_ACCOUNTS = {
+  hr: {
+    label: 'HR / Admin',
+    email: 'admin@demo.com',
+    password: 'Admin@123',
+    role: 'hr',
+  },
+  employee: {
+    label: 'Employee',
+    email: 'employee@demo.com',
+    password: 'Employee@123',
+    role: 'employee',
+  },
+};
 
 // Particles configuration for animated background
 const PARTICLES_CONFIG = {
@@ -80,47 +97,49 @@ const Login = () => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const performLogin = async ({ username, password, role }) => {
+    const endpoint = LOGIN_ENDPOINTS[role];
+    const response = await axios.post(endpoint, { username, password });
+
+    localStorage.setItem('access_token', response.data.access_token);
+    localStorage.setItem('refresh_token', response.data.refresh_token);
+    localStorage.setItem('user_role', role);
+
+    if (response.data.user) {
+      localStorage.setItem('user_id', response.data.user.id);
+      localStorage.setItem('username', response.data.user.username);
+    }
+
+    window.dispatchEvent(new Event('userDataUpdated'));
+    toast.success(`Welcome to Concientech! Logged in as ${role.toUpperCase()}`);
+
+    if (role === 'hr') navigate('/HrHome');
+    else navigate('/EmployeeHome');
+  };
+
   /**
    * Form submission handler - Authenticates user and redirects based on role
    */
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const endpoint = LOGIN_ENDPOINTS[formData.role];
-      const response = await axios.post(endpoint, {
+      await performLogin({
         username: formData.username,
-        password: formData.password
+        password: formData.password,
+        role: formData.role,
       });
-
-      // Store user information in localStorage
-      localStorage.setItem('access_token', response.data.access_token);
-      localStorage.setItem('refresh_token', response.data.refresh_token);
-      localStorage.setItem('user_role', formData.role);
-      
-      // Store additional user information if available
-      if (response.data.user) {
-        localStorage.setItem('user_id', response.data.user.id);
-        localStorage.setItem('username', response.data.user.username);
-      }
-
-      window.dispatchEvent(new Event('userDataUpdated'));
-      
-      toast.success(`Welcome to Concientech! Logged in as ${formData.role.toUpperCase()}`);
-
-      // Determine which page to redirect to based on role
-      switch (formData.role) {
-        case 'hr':
-          navigate('/HrHome');
-          break;
-        case 'employee':
-          navigate('/EmployeeHome');
-          break;
-          default:
-          navigate('/EmployeeHome');
-      }
     } catch (error) {
-      //console.error("Login failed:", error);
       toast.error("Please check your credentials");
+    }
+  };
+
+  const handleQuickLogin = async (accountKey) => {
+    const acct = DEMO_ACCOUNTS[accountKey];
+    setFormData({ username: acct.email, password: acct.password, role: acct.role });
+    try {
+      await performLogin({ username: acct.email, password: acct.password, role: acct.role });
+    } catch (error) {
+      toast.error("Demo login failed. Make sure demo users are seeded in the backend.");
     }
   };
 
@@ -129,21 +148,113 @@ const Login = () => {
     <div style={styles.wrapper}>
       {/* Animated Background */}
       <div id="particles-js" style={styles.particlesBackground} />
-      
+
       {/* Login Container */}
-      <div style={styles.container}>
-        <LoginForm
-          formData={formData}
-          showPassword={showPassword}
-          onInputChange={handleInputChange}
-          onSubmit={handleSubmit}
-          onTogglePassword={() => setShowPassword(prev => !prev)}
-          onNavigate={navigate}
-        />
+      <div className="relative z-[2] w-full max-w-[500px] flex flex-col items-center gap-4">
+        <div style={styles.container}>
+          <LoginForm
+            formData={formData}
+            showPassword={showPassword}
+            onInputChange={handleInputChange}
+            onSubmit={handleSubmit}
+            onTogglePassword={() => setShowPassword(prev => !prev)}
+            onNavigate={navigate}
+          />
+        </div>
+        <DemoAccessCard onQuickLogin={handleQuickLogin} />
       </div>
     </div>
   );
 };
+
+const DemoAccessCard = ({ onQuickLogin }) => {
+  const copy = (text) => {
+    navigator.clipboard?.writeText(text);
+    toast.info(`Copied: ${text}`);
+  };
+
+  return (
+    <div className="relative z-[3] w-full bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
+      <div className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-[#0a2c5d] to-[#2b6cb0] text-white">
+        <ShieldCheck size={18} />
+        <h3 className="text-sm sm:text-base font-semibold tracking-wide">
+          Demo Credentials (For Reviewers)
+        </h3>
+      </div>
+
+      <div className="p-4 sm:p-5 space-y-4">
+        <DemoRow
+          icon={<User size={16} className="text-blue-700" />}
+          title="Admin / HR"
+          email={DEMO_ACCOUNTS.hr.email}
+          password={DEMO_ACCOUNTS.hr.password}
+          onCopy={copy}
+        />
+        <div className="h-px bg-slate-200" />
+        <DemoRow
+          icon={<KeyRound size={16} className="text-emerald-700" />}
+          title="Employee"
+          email={DEMO_ACCOUNTS.employee.email}
+          password={DEMO_ACCOUNTS.employee.password}
+          onCopy={copy}
+        />
+
+        <div className="flex flex-col sm:flex-row gap-2 pt-1">
+          <button
+            type="button"
+            onClick={() => onQuickLogin('hr')}
+            className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-[#0a2c5d] to-[#2b6cb0] hover:opacity-95 transition shadow-md"
+          >
+            <ShieldCheck size={16} />
+            Login as HR / Admin
+          </button>
+          <button
+            type="button"
+            onClick={() => onQuickLogin('employee')}
+            className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-emerald-600 to-emerald-500 hover:opacity-95 transition shadow-md"
+          >
+            <User size={16} />
+            Login as Employee
+          </button>
+        </div>
+
+        <p className="text-[11px] text-slate-500 text-center leading-snug">
+          Demo accounts are for evaluation only. Some destructive actions may be disabled.
+        </p>
+      </div>
+    </div>
+  );
+};
+
+const DemoRow = ({ icon, title, email, password, onCopy }) => (
+  <div>
+    <div className="flex items-center gap-2 mb-2">
+      {icon}
+      <span className="text-sm font-semibold text-slate-800">{title}</span>
+    </div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs sm:text-sm">
+      <CredField label="Email" value={email} onCopy={onCopy} />
+      <CredField label="Password" value={password} onCopy={onCopy} />
+    </div>
+  </div>
+);
+
+const CredField = ({ label, value, onCopy }) => (
+  <div className="flex items-center justify-between gap-2 bg-slate-50 border border-slate-200 rounded-md px-3 py-2">
+    <div className="min-w-0">
+      <div className="text-[10px] uppercase tracking-wider text-slate-500">{label}</div>
+      <div className="font-mono text-slate-800 truncate">{value}</div>
+    </div>
+    <button
+      type="button"
+      onClick={() => onCopy(value)}
+      className="shrink-0 p-1.5 rounded hover:bg-slate-200 text-slate-600"
+      title={`Copy ${label}`}
+    >
+      <Copy size={14} />
+    </button>
+  </div>
+);
 
 // Sub-components for better organization
 const LoginForm = ({ formData, showPassword, onInputChange, onSubmit, onTogglePassword, onNavigate }) => (
