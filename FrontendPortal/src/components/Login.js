@@ -149,9 +149,9 @@ const Login = () => {
       {/* Animated Background */}
       <div id="particles-js" style={styles.particlesBackground} />
 
-      {/* Login Container */}
-      <div className="relative z-[2] w-full max-w-[500px] flex flex-col items-center gap-4">
-        <div style={styles.container}>
+      {/* Login + Demo Side-by-Side (stacked on mobile) */}
+      <div className="relative z-[2] w-full max-w-[920px] flex flex-col md:flex-row items-stretch justify-center gap-5 px-2">
+        <div style={{ ...styles.container, maxWidth: '440px', width: '100%' }}>
           <LoginForm
             formData={formData}
             showPassword={showPassword}
@@ -174,84 +174,81 @@ const DemoAccessCard = ({ onQuickLogin }) => {
   };
 
   return (
-    <div className="relative z-[3] w-full bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
-      <div className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-[#0a2c5d] to-[#2b6cb0] text-white">
-        <ShieldCheck size={18} />
-        <h3 className="text-sm sm:text-base font-semibold tracking-wide">
-          Demo Credentials (For Reviewers)
-        </h3>
+    <div className="relative z-[3] w-full md:w-[360px] md:flex-shrink-0 bg-white/95 backdrop-blur rounded-2xl shadow-xl border border-slate-200 overflow-hidden flex flex-col">
+      <div className="px-5 py-4 border-b border-slate-100">
+        <div className="flex items-center gap-2">
+          <ShieldCheck size={18} className="text-blue-700" />
+          <h3 className="text-sm font-semibold text-slate-900">Demo Access</h3>
+        </div>
+        <p className="text-[11px] text-slate-500 mt-1">
+          One-click sign-in for reviewers — no signup needed.
+        </p>
       </div>
 
-      <div className="p-4 sm:p-5 space-y-4">
+      <div className="p-5 flex-1 flex flex-col gap-4">
+        <button
+          type="button"
+          onClick={() => onQuickLogin('hr')}
+          className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-[#0a2c5d] to-[#2b6cb0] hover:opacity-95 transition shadow-sm"
+        >
+          <ShieldCheck size={16} />
+          Login as HR / Admin
+        </button>
+        <button
+          type="button"
+          onClick={() => onQuickLogin('employee')}
+          className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-emerald-600 to-emerald-500 hover:opacity-95 transition shadow-sm"
+        >
+          <User size={16} />
+          Login as Employee
+        </button>
+
+        <div className="flex items-center gap-2 pt-1">
+          <div className="flex-1 h-px bg-slate-200" />
+          <span className="text-[10px] uppercase tracking-wider text-slate-400">or use credentials</span>
+          <div className="flex-1 h-px bg-slate-200" />
+        </div>
+
         <DemoRow
-          icon={<User size={16} className="text-blue-700" />}
-          title="Admin / HR"
+          icon={<ShieldCheck size={14} className="text-blue-700" />}
+          title="HR / Admin"
           email={DEMO_ACCOUNTS.hr.email}
           password={DEMO_ACCOUNTS.hr.password}
           onCopy={copy}
         />
-        <div className="h-px bg-slate-200" />
         <DemoRow
-          icon={<KeyRound size={16} className="text-emerald-700" />}
+          icon={<User size={14} className="text-emerald-700" />}
           title="Employee"
           email={DEMO_ACCOUNTS.employee.email}
           password={DEMO_ACCOUNTS.employee.password}
           onCopy={copy}
         />
-
-        <div className="flex flex-col sm:flex-row gap-2 pt-1">
-          <button
-            type="button"
-            onClick={() => onQuickLogin('hr')}
-            className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-[#0a2c5d] to-[#2b6cb0] hover:opacity-95 transition shadow-md"
-          >
-            <ShieldCheck size={16} />
-            Login as HR / Admin
-          </button>
-          <button
-            type="button"
-            onClick={() => onQuickLogin('employee')}
-            className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-emerald-600 to-emerald-500 hover:opacity-95 transition shadow-md"
-          >
-            <User size={16} />
-            Login as Employee
-          </button>
-        </div>
-
-        <p className="text-[11px] text-slate-500 text-center leading-snug">
-          Demo accounts are for evaluation only. Some destructive actions may be disabled.
-        </p>
       </div>
     </div>
   );
 };
 
 const DemoRow = ({ icon, title, email, password, onCopy }) => (
-  <div>
-    <div className="flex items-center gap-2 mb-2">
+  <div className="space-y-1.5">
+    <div className="flex items-center gap-1.5">
       {icon}
-      <span className="text-sm font-semibold text-slate-800">{title}</span>
+      <span className="text-xs font-semibold text-slate-700">{title}</span>
     </div>
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs sm:text-sm">
-      <CredField label="Email" value={email} onCopy={onCopy} />
-      <CredField label="Password" value={password} onCopy={onCopy} />
-    </div>
+    <CredField value={email} onCopy={onCopy} icon={<KeyRound size={12} />} />
+    <CredField value={password} onCopy={onCopy} mono />
   </div>
 );
 
-const CredField = ({ label, value, onCopy }) => (
-  <div className="flex items-center justify-between gap-2 bg-slate-50 border border-slate-200 rounded-md px-3 py-2">
-    <div className="min-w-0">
-      <div className="text-[10px] uppercase tracking-wider text-slate-500">{label}</div>
-      <div className="font-mono text-slate-800 truncate">{value}</div>
-    </div>
+const CredField = ({ value, onCopy, mono }) => (
+  <div className="flex items-center justify-between gap-2 bg-slate-50 border border-slate-200 rounded-md px-2.5 py-1.5 group">
+    <code className={`text-xs text-slate-700 truncate ${mono ? 'font-mono' : ''}`}>{value}</code>
     <button
       type="button"
       onClick={() => onCopy(value)}
-      className="shrink-0 p-1.5 rounded hover:bg-slate-200 text-slate-600"
-      title={`Copy ${label}`}
+      className="shrink-0 p-1 rounded text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition"
+      title="Copy"
     >
-      <Copy size={14} />
+      <Copy size={12} />
     </button>
   </div>
 );
